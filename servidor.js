@@ -233,6 +233,36 @@ sw.post('/updatepatente', function (req, res, next) {
     })
 });
 
+sw.get('/deletepatente/:codigo', (req, res) => {
+
+    postgres.connect(function (err, client, done) {
+        if (err) {
+
+            console.log("Nao conseguiu acessar o  BD " + err);
+            res.status(400).send('{' + err + '}');
+        } else {
+
+            var q1 = {
+                text:"delete from tb_patente where codigo = $1 returning codigo",
+                values: [req.params.codigo]
+            }
+            console.log(q1)
+
+            client.query(q1, function (err, result1) {
+                if (err) {
+                    console.log('retornou 400 no update q1');
+                    res.status(400).send('{' + err + '}');
+                } else {
+                    console.log('retornou 201 no update');
+                    res.status(201).send({ 'codigo': req.params.codigo });//retorna o codigo deletado.
+                }
+
+            })
+
+        }
+    })
+});
+
 sw.listen(4000, function () {
     console.log('Server is running.. on Port 4000');
 });
