@@ -159,7 +159,79 @@ sw.get('/listjogadores', function (req, res, next) {
     });
 });
 
+sw.post('/insertpatentes', function (req, res, next) {
 
+    postgres.connect(function (err, client, done) {
+        if (err) {
+
+            console.log("Nao conseguiu acessar o  BD " + err);
+            res.status(400).send('{' + err + '}');
+        } else {
+
+            var q1 = {
+                text: "insert into tb_patente(nome, quant_min_pontos, datacriacao, cor, logotipo) values ($1, $2, now(), $3, $4) returning codigo, nome, quant_min_pontos, to_char(datacriacao, \'dd/mm/yyyy hh24:mi:ss'\), cor, logotipo;",
+
+                values: [req.body.nome,
+                req.body.quant_min_pontos,
+                req.body.cor, req.body.logotipo]
+            }
+            console.log(q1)
+
+            client.query(q1, function (err, result1) {
+                if (err) {
+                    console.log('retornou 400 no insert q1');
+                    res.status(400).send('{' + err + '}');
+                } else {
+                    console.log('retornou 201 no insertpatente');
+                    res.status(201).send({"codigo":result1.rows[0].codigo,
+                                            "nome": result1.rows[0].nome,
+                                            "quant_min_pontos": result1.rows[0].quant_min_pontos,
+                                            "datacriacao": result1.rows[0].datacriacao,
+                                            "logotipo": result1.rows[0].logotipo});
+                }
+
+            })
+
+        }
+    })
+});
+
+sw.post('/updatepatente', function (req, res, next) {
+
+    postgres.connect(function (err, client, done) {
+        if (err) {
+
+            console.log("Nao conseguiu acessar o  BD " + err);
+            res.status(400).send('{' + err + '}');
+        } else {
+
+            var q1 = {
+                text:"update tb_patente set nome = $1, quant_min_pontos = $2, cor = $3, logotipo = $4 where codigo = $5 returning codigo, nome, quant_min_pontos, to_char(datacriacao, \'dd/mm/yyyy hh24:mi:ss'\) as datacriacao, logotipo",
+
+                values: [req.body.nome,
+                req.body.quant_min_pontos,
+                req.body.cor, req.body.logotipo, req.body.codigo]
+            }
+            console.log(q1)
+
+            client.query(q1, function (err, result1) {
+                if (err) {
+                    console.log('retornou 400 no update q1');
+                    res.status(400).send('{' + err + '}');
+                } else {
+                    console.log('retornou 201 no update');
+                    res.status(201).send({"codigo":result1.rows[0].codigo,
+                                            "nome": result1.rows[0].nome,
+                                            "quant_min_pontos": result1.rows[0].quant_min_pontos,
+                                            "datacriacao": result1.rows[0].datacriacao,
+                                            "logotipo": result1.rows[0].logotipo});
+                }
+
+            })
+
+        }
+    })
+});
 
 sw.listen(4000, function () {
     console.log('Server is running.. on Port 4000');
