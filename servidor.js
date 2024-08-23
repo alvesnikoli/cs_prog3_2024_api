@@ -130,7 +130,11 @@ sw.get('/listjogadores', function (req, res, next) {
             res.status(400).send('{' + err + '}');
         } else {
 
-            var q = 'select j.nickname, j.senha, 0 as patentes, j.quantpontos, e.complemento as Complemento, e.cep as CEP, j.quantdinheiro, to_char(j.datacadastro, \'dd/mm/yyyy hh24:mm:ss\') as datacadastro, to_char(j.data_ultimo_login, \'dd/mm/yyyy hh24:mm:ss\') as data_ultimo_login, j.situacao from tb_jogador j, tb_endereco e where e.nicknamejogador = j.nickname order by nickname asc;';
+            var q = 'select j.nickname, j.senha, j.quantdinheiro, j.quantpontos, 0 as patentes, ' +
+                    '0 as endereco,' +
+                    'to_char(j.datacadastro, \'dd/mm/yyyy hh24:mm:ss\') as datacadastro,' + 
+                    'to_char(j.data_ultimo_login, \'dd/mm/yyyy hh24:mm:ss\') as data_ultimo_login,' +
+                    'j.situacao from tb_jogador order by nickname asc;';
 
             client.query(q, async function (err, result) {
 
@@ -144,6 +148,9 @@ sw.get('/listjogadores', function (req, res, next) {
                         try {
                             pj = await client.query('select p.codigo, p.nome from tb_patente p, tb_jogador_conquista_patente jp where jp.codpatente=p.codigo and jp.nickname = $1', [result.rows[i].nickname])
                             result.rows[i].patentes = pj.rows;
+
+                            ej = await client.query('select e.codigo, e.complemento from tb_endereco e, tb_jogador je where je.nicknamejogador=p.nicknamejogador', [result.rows[i].nickname])
+                            result.rows[i].endereco = ej.rows;
                         } catch (err) {
                             res.status(400).send('{' + err + '}');
                         }
