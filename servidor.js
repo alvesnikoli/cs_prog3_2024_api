@@ -134,7 +134,7 @@ sw.get('/listjogadores', function (req, res, next) {
                     '0 as endereco,' +
                     'to_char(j.datacadastro, \'dd/mm/yyyy hh24:mm:ss\') as datacadastro,' + 
                     'to_char(j.data_ultimo_login, \'dd/mm/yyyy hh24:mm:ss\') as data_ultimo_login,' +
-                    'j.situacao from tb_jogador order by nickname asc;';
+                    'j.situacao from tb_jogador j order by nickname asc;';
 
             client.query(q, async function (err, result) {
 
@@ -149,7 +149,7 @@ sw.get('/listjogadores', function (req, res, next) {
                             pj = await client.query('select p.codigo, p.nome from tb_patente p, tb_jogador_conquista_patente jp where jp.codpatente=p.codigo and jp.nickname = $1', [result.rows[i].nickname])
                             result.rows[i].patentes = pj.rows;
 
-                            ej = await client.query('select e.codigo, e.complemento from tb_endereco e, tb_jogador je where je.nicknamejogador=p.nicknamejogador', [result.rows[i].nickname])
+                            ej = await client.query('select e.codigo, e.cep, e.complemento from tb_endereco e where e.nicknamejogador= $1', [result.rows[i].nickname])
                             result.rows[i].endereco = ej.rows;
                         } catch (err) {
                             res.status(400).send('{' + err + '}');
