@@ -100,7 +100,7 @@ sw.get('/listpatentes', function (req, res, next) {
             res.status(400).send('{' + err + '}');
         } else {
 
-            var q = 'select codigo as id, nome, quant_min_pontos, to_char(datacriacao, \'dd/mm/yyyy hh24:mm:ss\') as DataCriacao, cor, logotipo from tb_patente order by codigo asc';
+            var q = 'select codigo, nome, quant_min_pontos, to_char(datacriacao, \'dd/mm/yyyy hh24:mm:ss\') as datacriacao, cor, logotipo from tb_patente order by codigo asc';
 
             client.query(q, function (err, result) {
                 done(); // closing the connection;
@@ -284,7 +284,7 @@ sw.post('/insertjogadores', function (req, res, next) {
                       "values ($1, $2, $3, $4, now(), now(), $5) returning nickname, senha, quantpontos, quantpontos, quantdinheiro, to_char(datacadastro, \'dd/mm/yyyy hh24:mi:ss'\), to_char(data_ultimo_login, \'dd/mm/yyyy hh24:mi:ss'\), situacao;",
 
                 values: [req.body.nickname,
-                req.body.senha, req.body.quantpontos, req.body.quantdinheiro, req.body.situacao == true ? "A" : "I"]
+                req.body.senha, req.body.quantpontos, req.body.quantdinheiro, req.params.datacadastro, req.body.situacao == true ? "A" : "I"]
             }
 
             var q2 = {
